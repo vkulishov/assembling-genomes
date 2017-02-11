@@ -46,6 +46,12 @@ public class PhiX174ErrorFreeOverlap {
         System.out.println(genome);
     }
 
+    /**
+     * Solves the problem of assembling a DNA sequence from the provided DNA fragments
+     *
+     * @param reads DNA fragments
+     * @return DNA sequence
+     */
     public String assemblyGenome(String[] reads) {
         Set<String> readsSet = new HashSet<>(Arrays.asList(reads));
         String[] readsWithoutDuplicates = readsSet.toArray(new String[readsSet.size()]);
@@ -55,6 +61,9 @@ public class PhiX174ErrorFreeOverlap {
         return assemblyGenome(readsWithoutDuplicates, hamiltonianPath);
     }
 
+    /**
+     * Builds overlap graph in a form of adjacency list for the provided reads
+     */
     List<Vertex>[] buildOverlapGraph(String[] reads) {
         @SuppressWarnings("unchecked")
         List<Vertex>[] adjacencyList = new List[reads.length];
@@ -82,6 +91,11 @@ public class PhiX174ErrorFreeOverlap {
         return adjacencyList;
     }
 
+    /**
+     * Calculates an overlap of input strings. Overlap is a length of the string1 suffix that is
+     * equal to the string2 prefix. Example: string1 = "AACGT", string2 = "GTCCA". Overlap value
+     * is 2 ("GT").
+     */
     int stringsOverlap(String string1, String string2) {
         int overlapLength = 0;
         int prefixPosition = 0;
@@ -106,6 +120,13 @@ public class PhiX174ErrorFreeOverlap {
         return overlapLength;
     }
 
+    /**
+     * Build Hamiltonian path for the given graph using greedy approach (on every step select
+     * node with the maximum weight).
+     *
+     * @param adjacencyList graph
+     * @return linked list of vertices that represent the Hamiltonian path for the given graph
+     */
     Deque<Vertex> buildLongestHamiltonianPath(List<Vertex>[] adjacencyList) {
         boolean[] visitedVertices = new boolean[adjacencyList.length];
         Deque<Vertex> resultQueue = new LinkedList<>();
@@ -114,6 +135,9 @@ public class PhiX174ErrorFreeOverlap {
         return resultQueue;
     }
 
+    /**
+     * Recursive method for adding another vertex to a Hamiltonian path for the provide graph.
+     */
     boolean addVertexToLongestHamiltonianPath(List<Vertex>[] adjacencyList, Deque<Vertex> path,
                                               boolean[] visited, Vertex vertex) {
         path.add(vertex);
