@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class PhiX174ErrorFreeOverlap {
     private static final int DEFAULT_READS_NUMBER = 1618;
-    private static final int DEFAULT_MIN_OVERLAP_LENGTH = 12;
+    private static final int DEFAULT_MIN_OVERLAP_LENGTH = 13;
     private static final Vertex START_VERTEX = new Vertex(0, 0);
 
     private final int minOverlapLength;
@@ -47,10 +47,12 @@ public class PhiX174ErrorFreeOverlap {
     }
 
     public String assemblyGenome(String[] reads) {
-        List<Vertex>[] adjacencyList = buildOverlapGraph(reads);
+        Set<String> readsSet = new HashSet<>(Arrays.asList(reads));
+        String[] readsWithoutDuplicates = readsSet.toArray(new String[readsSet.size()]);
+        List<Vertex>[] adjacencyList = buildOverlapGraph(readsWithoutDuplicates);
         Deque<Vertex> hamiltonianPath = buildLongestHamiltonianPath(adjacencyList);
 
-        return assemblyGenome(reads, hamiltonianPath);
+        return assemblyGenome(readsWithoutDuplicates, hamiltonianPath);
     }
 
     List<Vertex>[] buildOverlapGraph(String[] reads) {
@@ -63,16 +65,12 @@ public class PhiX174ErrorFreeOverlap {
         for (int i = 0; i < reads.length - 1; i++) {
             for (int j = i + 1; j < reads.length; j++) {
                 int stringsForwardOrderOverlap = stringsOverlap(reads[i], reads[j]);
+                if (stringsForwardOrderOverlap >= this.minOverlapLength) {
+                    adjacencyList[i].add(new Vertex(j, stringsForwardOrderOverlap));
+                }
                 int stringsReverseOrderOverlap = stringsOverlap(reads[j], reads[i]);
-                if (Math.max(stringsForwardOrderOverlap, stringsReverseOrderOverlap) >= this.minOverlapLength) {
-                    if (stringsForwardOrderOverlap > stringsReverseOrderOverlap) {
-                        adjacencyList[i].add(new Vertex(j, stringsForwardOrderOverlap));
-                    } else if (stringsForwardOrderOverlap < stringsReverseOrderOverlap) {
-                        adjacencyList[j].add(new Vertex(i, stringsReverseOrderOverlap));
-                    } else {
-                        adjacencyList[i].add(new Vertex(j, stringsForwardOrderOverlap));
-                        adjacencyList[j].add(new Vertex(i, stringsReverseOrderOverlap));
-                    }
+                if (stringsReverseOrderOverlap >= this.minOverlapLength) {
+                    adjacencyList[j].add(new Vertex(i, stringsReverseOrderOverlap));
                 }
             }
         }
@@ -110,30 +108,29 @@ public class PhiX174ErrorFreeOverlap {
 
     Deque<Vertex> buildLongestHamiltonianPath(List<Vertex>[] adjacencyList) {
         boolean[] visitedVertices = new boolean[adjacencyList.length];
-        Deque<Vertex> resultQueue = new LinkedList<>(); // Actual Hamiltonian path
-        Deque<Vertex> nodesStack = new LinkedList<>();
-        nodesStack.push(START_VERTEX);
+        Deque<Vertex> resultQueue = new LinkedList<>();
+        addVertexToLongestHamiltonianPath(adjacencyList, resultQueue, visitedVertices,
+                START_VERTEX);
+        return resultQueue;
+    }
 
-        while (!nodesStack.isEmpty()) {
-            Vertex node = nodesStack.pop();
-            visitedVertices[node.index] = true;
-            resultQueue.add(node);
+    boolean addVertexToLongestHamiltonianPath(List<Vertex>[] adjacencyList, Deque<Vertex> path,
+                                              boolean[] visited, Vertex vertex) {
+        path.add(vertex);
+        visited[vertex.index] = true;
 
-            boolean nextNodeFound = false;
-            for (Vertex vertex : adjacencyList[node.index]) {
-                if (!visitedVertices[vertex.index]) {
-                    nextNodeFound = true;
-                    nodesStack.push(vertex);
-                }
-            }
-            if (!nextNodeFound && resultQueue.size() < adjacencyList.length) {
-                resultQueue.removeLast();
-                visitedVertices[node.index] = false;
-            } else if (resultQueue.size() == adjacencyList.length) {
-                break;
+        if (path.size() == adjacencyList.length) {
+            return true;
+        }
+        for (Vertex v : adjacencyList[vertex.index]) {
+            if (!visited[v.index] && addVertexToLongestHamiltonianPath(adjacencyList, path, visited, v)) {
+                return true;
             }
         }
-        return resultQueue;
+        Vertex last = path.removeLast();
+        visited[last.index] = false;
+
+        return false;
     }
 
     /**
@@ -151,17 +148,15 @@ public class PhiX174ErrorFreeOverlap {
      */
     String assemblyGenome(String[] reads, Deque<Vertex> hamiltonianPath) {
         StringBuilder result = new StringBuilder();
-        Iterator<Vertex> pathIterator = hamiltonianPath.iterator();
-        while (pathIterator.hasNext()) {
-            Vertex vertex = pathIterator.next();
-            // Detect the last element in the path.
+        for (Vertex vertex : hamiltonianPath) {
             String read = reads[vertex.index];
-            if (!pathIterator.hasNext()) {
-                int circularOverlap = stringsOverlap(read, reads[0]);
-                result.append(read.substring(vertex.weight, read.length() - circularOverlap));
-            } else {
-                result.append(read.substring(vertex.weight));
-            }
+            result.append(read.substring(vertex.weight));
+        }
+        int lastReadIndex = hamiltonianPath.getLast().index;
+        int circularOverlap = stringsOverlap(reads[lastReadIndex], reads[0]);
+
+        if (circularOverlap > 0) {
+            result.delete(result.length() - circularOverlap, result.length());
         }
         return result.toString();
     }
@@ -178,7 +173,7 @@ public class PhiX174ErrorFreeOverlap {
         @Override
         public int compareTo(Object o) {
             Vertex other = (Vertex) o;
-            return Integer.compare(this.weight, other.weight);
+            return Integer.compare(other.weight, this.weight);
         }
     }
 }

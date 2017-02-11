@@ -4,12 +4,15 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for week1.PhiX174ErrorFreeOverlap.
  */
 public class PhiX174ErrorFreeOverlapTest {
+    private static final char[] NUKLEOTIDES = new char[]{'A', 'C', 'G', 'T'};
+    private static final Random rnd = new Random();
     private PhiX174ErrorFreeOverlap solver;
 
     public PhiX174ErrorFreeOverlapTest() {
@@ -92,14 +95,14 @@ public class PhiX174ErrorFreeOverlapTest {
 
         PhiX174ErrorFreeOverlap.Vertex[] node1AdjVertices = graph[0].toArray(
                 new PhiX174ErrorFreeOverlap.Vertex[graph[0].size()]);
-        assertEquals(3, node1AdjVertices[0].index);
-        assertEquals(3, node1AdjVertices[0].weight);
+        assertEquals(3, node1AdjVertices[2].index);
+        assertEquals(3, node1AdjVertices[2].weight);
 
         assertEquals(2, node1AdjVertices[1].index);
         assertEquals(4, node1AdjVertices[1].weight);
 
-        assertEquals(1, node1AdjVertices[2].index);
-        assertEquals(5, node1AdjVertices[2].weight);
+        assertEquals(1, node1AdjVertices[0].index);
+        assertEquals(5, node1AdjVertices[0].weight);
     }
 
     @Test
@@ -180,15 +183,130 @@ public class PhiX174ErrorFreeOverlapTest {
         String[] reads = new String[]{"AACG", "CGCA", "CAAA"};
         String genome = solver.assemblyGenome(reads);
 
-        assertEquals("AACGCA", genome);
+        verifyGenome("AACGCA", genome);
     }
 
     @Test
     public void testAssemblyGenomeFromReads_example1() {
-        solver = new PhiX174ErrorFreeOverlap(4);
-        String[] reads = new String[]{"GTACGT", "TACGTA", "CGTACG", "ACGTAC", "GTACGA", "TACGAT"};
+        solver = new PhiX174ErrorFreeOverlap(5);
+        String[] reads = new String[]{"GTACGT", "TACGTA", "CGTACG", "ACGTAC", "GTACGA", "TACGAT",
+                "ACGATG", "CGATGT", "GATGTA", "ATGTAC", "TGTACG"};
         String genome = solver.assemblyGenome(reads);
 
-        assertEquals("GTACGTACGAT", genome);
+        verifyGenome("GTACGTACGAT", genome);
+    }
+
+    @Test
+    public void testAssemblyGenomeFromReads_example2() {
+        solver = new PhiX174ErrorFreeOverlap(1);
+        String[] reads = new String[]{"TAG", "AGT", "CAG", "GCA"};
+        String genome = solver.assemblyGenome(reads);
+
+        verifyGenome("TAGCAG", genome);
+    }
+
+    @Test
+    public void testAssemblyGenomeFromReads_20fixed() {
+        String[] reads = new String[]{
+                "GACAA", "AGGGA", "ACAAC", "GAAGG", "ATTGA", "TGTTG", "ATTGA", "CTGTT", "ACAAC",
+                "CTGTT", "GTTGG", "ACTGT", "GATTG", "ACAAC", "AGGGA", "GGATT", "TTGAA", "AGGGA",
+                "TTGAA", "TGGAT", "ACTGT", "AAGGG", "GGATT", "TGAAG", "GACAA", "CAACT", "AACTG",
+                "TGTTG", "TTGAA", "GAAGG"};
+
+        solver = new PhiX174ErrorFreeOverlap(3);
+        String assemblyGenome = solver.assemblyGenome(reads);
+
+        System.out.println("Assembled genome: " + assemblyGenome);
+
+        verifyGenome("TGGATTGAAGGGACAACTGT", assemblyGenome);
+    }
+
+    @Test
+    public void testAssemblyGenomeFromReads_10fixed() {
+        String[] reads = new String[]{
+                "ATAAG", "TTCAT", "GGTTC", "GGGTT", "ATAAG", "CATAA", "TTCAT", "GGGTT", "GTTCA",
+                "ATAAG", "ATAAG", "GTTCA", "AAGGG", "AAGGG", "ATAAG", "TTCAT", "TTCAT", "GGTTC", "ATAAG",
+                "GTTCA"};
+
+        solver = new PhiX174ErrorFreeOverlap(2);
+        String assemblyGenome = solver.assemblyGenome(reads);
+
+        System.out.println("Assembled genome: " + assemblyGenome);
+
+        verifyGenome("AAGGGTTCAT", assemblyGenome);
+    }
+
+    @Test
+    public void testAssemblyGenomeFromReads_10() {
+        char[] genomeChars = new char[10];
+        for (int i = 0; i < genomeChars.length; i++) {
+            genomeChars[i] = NUKLEOTIDES[rnd.nextInt(NUKLEOTIDES.length)];
+        }
+
+        System.out.println("Source: " + String.valueOf(genomeChars));
+        String[] reads = new String[20];
+        System.out.println("Reads:");
+        for (int i = 0; i < reads.length; i++) {
+            reads[i] = generateRead(genomeChars, 5);
+            System.out.println(reads[i]);
+        }
+        System.out.println("Reads Build!");
+
+        solver = new PhiX174ErrorFreeOverlap(3);
+        String assemblyGenome = solver.assemblyGenome(reads);
+
+        System.out.println("Assembled genome: " + assemblyGenome);
+
+        String genomeString = String.valueOf(genomeChars);
+        verifyGenome(genomeString, assemblyGenome);
+    }
+
+    @Test
+    public void testAssemblyGenomeFromReads_20() {
+        char[] genomeChars = new char[20];
+        for (int i = 0; i < genomeChars.length; i++) {
+            genomeChars[i] = NUKLEOTIDES[rnd.nextInt(NUKLEOTIDES.length)];
+        }
+
+        System.out.println("Source: " + String.valueOf(genomeChars));
+        String[] reads = new String[30];
+        System.out.println("Reads:");
+        for (int i = 0; i < reads.length; i++) {
+            reads[i] = generateRead(genomeChars, 5);
+            System.out.println(reads[i]);
+        }
+        System.out.println("Reads Build!");
+
+        solver = new PhiX174ErrorFreeOverlap(3);
+        String assemblyGenome = solver.assemblyGenome(reads);
+
+        System.out.println("Assembled genome: " + assemblyGenome);
+
+        String genomeString = String.valueOf(genomeChars);
+        verifyGenome(genomeString, assemblyGenome);
+    }
+
+    private void verifyGenome(String expected, String actual) {
+        assertTrue(expected.length() == actual.length());
+
+        int forwardOverlap = solver.stringsOverlap(expected, actual);
+        int backwardOverlap = solver.stringsOverlap(actual, expected);
+
+        assertTrue(forwardOverlap + backwardOverlap == expected.length());
+    }
+
+    private static String generateRead(char[] genome, int readLength) {
+        char[] readChars = new char[readLength];
+        int startPosition = rnd.nextInt(genome.length);
+
+        char[] subRead = Arrays.copyOfRange(genome, startPosition, Math.min(startPosition +
+                readLength, genome.length));
+        System.arraycopy(subRead, 0, readChars, 0, subRead.length);
+
+        if (subRead.length < readLength) {
+            System.arraycopy(genome, 0, readChars, subRead.length, readLength - subRead.length);
+        }
+
+        return String.valueOf(readChars);
     }
 }
