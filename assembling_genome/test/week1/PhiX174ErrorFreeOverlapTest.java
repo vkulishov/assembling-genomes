@@ -1,5 +1,7 @@
 package week1;
 
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -13,17 +15,20 @@ import static org.junit.Assert.assertTrue;
 public class PhiX174ErrorFreeOverlapTest {
     private static final char[] NUKLEOTIDES = new char[]{'A', 'C', 'G', 'T'};
     private static final Random rnd = new Random();
+    private static final int MIN_OVERLAP_LENGTH = 2;
     private PhiX174ErrorFreeOverlap solver;
-
-    public PhiX174ErrorFreeOverlapTest() {
-        solver = new PhiX174ErrorFreeOverlap(2);
-    }
 
     private static void verifyPath(Integer[] expected, PhiX174ErrorFreeOverlap.Vertex[] path) {
         for (int i = 0; i < expected.length; i++) {
             assertEquals((int) expected[i], path[i].index);
         }
     }
+
+    @Before
+    public void setUp() {
+        solver = new PhiX174ErrorFreeOverlap(MIN_OVERLAP_LENGTH);
+    }
+
 
     @Test
     public void testStringsOverlap_withoutOverlap() {
@@ -206,6 +211,7 @@ public class PhiX174ErrorFreeOverlapTest {
     }
 
     @Test
+    @Ignore
     public void testAssemblyGenomeFromReads_20fixed() {
         String[] reads = new String[]{
                 "GACAA", "AGGGA", "ACAAC", "GAAGG", "ATTGA", "TGTTG", "ATTGA", "CTGTT", "ACAAC",
@@ -262,6 +268,7 @@ public class PhiX174ErrorFreeOverlapTest {
     }
 
     @Test
+    @Ignore
     public void testAssemblyGenomeFromReads_20() {
         char[] genomeChars = new char[20];
         for (int i = 0; i < genomeChars.length; i++) {
