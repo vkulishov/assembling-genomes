@@ -37,3 +37,11 @@ the graph: (𝑣1, 𝑣2),(𝑣2, 𝑣3), . . . ,(𝑣𝑚−1, 𝑣𝑚),(𝑣�
 the graph should appear in this sequence exactly once. As usual, the graph may contain many Eulerian
 cycles (in particular, each Eulerian cycle may be traversed starting from any of its vertices). You may
 output any one of them.
+
+
+Problem 3:
+Finding a 𝑘-Universal Circular String
+
+Input Format. An integer 𝑘.
+
+Output Format. A 𝑘-universal circular string. (If multiple answers exist, you may return any one.)
