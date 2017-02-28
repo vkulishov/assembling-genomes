@@ -45,3 +45,18 @@ Finding a 𝑘-Universal Circular String
 Input Format. An integer 𝑘.
 
 Output Format. A 𝑘-universal circular string. (If multiple answers exist, you may return any one.)
+
+
+Problem 4:
+Assembling the phi X174 Genome from its 𝑘-mer Composition
+
+Task. Let the “𝑘-mer composition” of a string Text be defined as the list of every 𝑘-mer in Text (in any
+order). For example, the 3-mer composition of the circular string ACGTA is [ACG, CGT, GTA, TAC, AAC].
+Given the 𝑘-mer composition of some unknown string, perform the task of Genome Assembly and
+return the circular genome from which the 𝑘-mers came. In other words, return a string whose 𝑘-mer
+composition is equal to the given list of 𝑘-mers.
+
+Dataset. Each of the 5396 lines of the input contains a single 𝑘-mer. The 𝑘-mers are given to you in
+alphabetical order because their true order is hidden from you. Each 𝑘-mer is 10 nucleotides long.
+
+Output. Output the assembled genome on a single line.
