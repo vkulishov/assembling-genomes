@@ -2,21 +2,16 @@ package week3;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static util.CommonTestHelper.buildReads;
 
 /**
  * Unit tests for {@link SelectOptimalKmer}.
  */
 public class SelectOptimalKmerTest {
     private SelectOptimalKmer solver = new SelectOptimalKmer();
-
-    private static Set<String> buildReads(String... reads) {
-        return new HashSet<>(Arrays.asList(reads));
-    }
 
     @Test
     public void findOptimalK_sample1() throws Exception {

@@ -1,7 +1,9 @@
 package util;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Utility class providing common helper methods for unit tests of the assembly genome project.
@@ -30,5 +32,9 @@ public class CommonTestHelper {
         }
 
         return String.valueOf(readChars);
+    }
+
+    public static Set<String> buildReads(String... reads) {
+        return new HashSet<>(Arrays.asList(reads));
     }
 }
